@@ -37,12 +37,13 @@ int DBFile::Create (char *f_path, fType f_type, void *startup) {
         printf("Not enough memory to create file.\n");
         return DB_INSUFFICIENT_MEMORY;
     }
+    //fileP->AddPage(pageP,0);
     fileP->Open(0,f_path);
     path=new char[strlen(f_path)+1];
+    endPageOffset=0;
     assert(path!=NULL);
     //store path
     strcpy(path,f_path);
-
     //create header to store attrib
     header=MakeDbHeader(path);
     if (header==0)
@@ -142,6 +143,7 @@ int DBFile::Open (char *f_path) {
     fileP->Open(5,path);
     int length = fileP->GetLength();
     endPageOffset=length-1;
+    cout<<"End page offset:    "<<endPageOffset<<endl;
     fileP->GetPage(pageP,0);
     assert(length>0 && length <10000);
     printf("No of pages:  %ld\n ",fileP->GetLength());
@@ -174,6 +176,12 @@ void DBFile::MoveFirst () {
 int DBFile::Close () {
 
     // write code for writing dirty page to disk/file
+    if (isDirtyPage)
+    {
+        cout<<endPageOffset<<endl;
+        getchar();
+        fileP->AddPage(pageP,endPageOffset);
+    }
     fileP->Close();
     close(header);
     delete fileP;
@@ -182,6 +190,7 @@ int DBFile::Close () {
     /*if (pageP!=NULL)
       delete pageP;
       */
+    isDirtyPage=false;
     if (tempPage!=NULL)
         delete tempPage;
     printf("File closed \n");
@@ -189,20 +198,23 @@ int DBFile::Close () {
 }
 
 void DBFile::Add (Record &rec) {
+    
     assert(fileP!=NULL);
     bool writeFirst=false;
     int lastPage=endPageOffset;
-    if (pageP==NULL)
-        pageP = new (nothrow) Page();
-    //cerr<<lastPage-1<<"  :Last page offset"<<endl;
-    //fileP->AddPage(pageP,lastPage-1);
-    fileP->GetPage(pageP,lastPage-1);
+    assert (pageP!=NULL);
+    //    pageP=new Page();
+    //else fileP->GetPage(pageP,lastPage);
+    // Potential error
+    cout<<" Last page offset "<<lastPage<<endl;
+    //if (fileP->GetLength()!=0)
     assert(pageP!=NULL); 
     do {
         if (writeFirst){
             pageP=new (nothrow) Page();
             assert(pageP!=NULL);
             pageP->Append(&rec);
+            fileP->AddPage(pageP,lastPage);
             writeFirst=false;
             lastPage++;
             endPageOffset++;
@@ -216,13 +228,15 @@ void DBFile::Add (Record &rec) {
         }
     } while (writeFirst==true);
     assert(fileP!=NULL);
-    /*Page *tempPage2;
-      fileP->GetPage(tempPage2,lastPage-1);
-      tempPage2->EmptyItOut();
-      */
-    fileP->AddPage(pageP,lastPage-1);
-    recOffset++;
+    cout<<lastPage<<endl;
+    isDirtyPage=true;
+
 }
+
+
+
+
+
 // Logic is to read the page only once and retrieve the records in memory instead of reading the memory again and again.
 // For this we need to store Page offset and record offset and load if the page only if record read is the last one.We need a
 // state saying if the first GetNext has been called.

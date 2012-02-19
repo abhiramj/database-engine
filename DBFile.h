@@ -10,14 +10,13 @@
 
 typedef enum {heap, sorted, tree} fType;
 enum {DB_INSUFFICIENT_MEMORY=0,DB_UNSUPPORTED_TYPE=2,DB_CREATE_SUCCESS=1} ; 
-// stub DBFile header..replace it with your own DBFile.h 
 
 class DBFile {
     private: 
         File *fileP;
+        Page *pageP;
         int header;
         char* path;
-        Page *pageP;
         Page *tempPage;
         bool isDirtyPage;
         off_t pageOffset;

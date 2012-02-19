@@ -7,6 +7,7 @@
 #include "Record.h"
 #include "DBFile.h"
 #include "ComparisonEngine.h"
+#include <vector>
 using namespace std;
 
 class BigQ {
@@ -14,8 +15,12 @@ class BigQ {
     public:
 
         BigQ (Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen);
-        int WritePage(DBFile &f,OrderMaker &sortorder,Pipe &in, int pageOffset);
+        int WriteRun(OrderMaker &sortorder,Pipe &in, int runLength,int offsetToWrite);
         ~BigQ ();
+    private:
+        File sortedWrite;
+        vector<int > runStart;
+        vector<int > runLengths;
 };
 static void* getRunsFromInputPipeHelper(void*);
 struct CompareTheRecords
