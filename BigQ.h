@@ -10,6 +10,10 @@
 #include <vector>
 using namespace std;
 
+struct PQRecStruct{
+Record* recStruct;
+int runNum;
+};
 class BigQ {
 
     public:
@@ -38,4 +42,24 @@ struct CompareTheRecords
     }
 
 };
+class CompareForPQ
+{
+    private:
+        OrderMaker* sortOrder;
+    public:
+        CompareForPQ(OrderMaker *sortorder)
+        {
+            sortOrder = sortorder;
+        }
+        bool operator()(PQRecStruct *leftRecord, PQRecStruct *rightRecord)
+        {
+            ComparisonEngine comparisonEngine;
+            if(comparisonEngine.Compare(leftRecord->recStruct, rightRecord->recStruct, sortOrder)<0)
+                return false;
+
+            return true;
+
+        }
+};
+
 #endif

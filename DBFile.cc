@@ -144,7 +144,8 @@ int DBFile::Open (char *f_path) {
     int length = fileP->GetLength();
     endPageOffset=length-1;
     cout<<"End page offset:    "<<endPageOffset<<endl;
-    fileP->GetPage(pageP,0);
+    if (endPageOffset!=-1)
+        fileP->GetPage(pageP,0);
     assert(length>0 && length <10000);
     printf("No of pages:  %ld\n ",fileP->GetLength());
     pageOffset=0;
@@ -206,19 +207,18 @@ void DBFile::Add (Record &rec) {
     //    pageP=new Page();
     //else fileP->GetPage(pageP,lastPage);
     // Potential error
-    cout<<" Last page offset "<<lastPage<<endl;
+   // cout<<" Last page offset "<<lastPage<<endl;
     //if (fileP->GetLength()!=0)
-    assert(pageP!=NULL); 
     do {
         if (writeFirst){
+            cout<<endPageOffset<<endl;
+            fileP->AddPage(pageP,lastPage);
+            lastPage++;
+            endPageOffset++;
             pageP=new (nothrow) Page();
             assert(pageP!=NULL);
             pageP->Append(&rec);
-            fileP->AddPage(pageP,lastPage);
             writeFirst=false;
-            lastPage++;
-            endPageOffset++;
-            cout<<endPageOffset<<endl;
             break;
         }
         int isRec=pageP->Append(&rec);
@@ -228,7 +228,7 @@ void DBFile::Add (Record &rec) {
         }
     } while (writeFirst==true);
     assert(fileP!=NULL);
-    cout<<lastPage<<endl;
+    //cout<<lastPage<<endl;
     isDirtyPage=true;
 
 }
