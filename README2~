@@ -1,0 +1,7 @@
+Use all the files included in this folder.
+To run use Makefile provided.
+
+make generates test.out which implements the usual functions
+make a1-test.out generates a1test.out which will run assignment 1's test file
+
+

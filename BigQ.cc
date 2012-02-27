@@ -102,8 +102,8 @@ BigQ :: BigQ (Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen) {
                 //Check that we are not eating into the next run
                 if ( runStart.at(runIndex) > lastOffsetOfRun){
                     runsEmpty++;
-                    cout<<"Run emptied,total runs now stands at:   "<<(totalRuns-runsEmpty)<<endl;
-                    cout<<"Queue has "<<recQ.size()<<"  records"<<endl;
+                   // cout<<"Run emptied,total runs now stands at:   "<<(totalRuns-runsEmpty)<<endl;
+                    //cout<<"Queue has "<<recQ.size()<<"  records"<<endl;
                     continue;
                 }
                 //If valid, get page
@@ -120,11 +120,11 @@ BigQ :: BigQ (Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen) {
             totalRecsinQ++;
         }else {
             runsEmpty++;
-            cout<<"Run emptied,total runs now stands at:   "<<(totalRuns-runsEmpty)<<endl;
-            cout<<"Queue has "<<recQ.size()<<"  records"<<endl;
+           // cout<<"Run emptied,total runs now stands at:   "<<(totalRuns-runsEmpty)<<endl;
+           // cout<<"Queue has "<<recQ.size()<<"  records"<<endl;
         }
     }while (runsEmpty<totalRuns);
-    cout<<"totalRecsinQ  "<<totalRecsinQ<<endl;
+   // cout<<"totalRecsinQ  "<<totalRecsinQ<<endl;
 
 
 
@@ -135,8 +135,7 @@ BigQ :: BigQ (Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen) {
 
 int BigQ::WriteRun(OrderMaker &sortorder,Pipe &in, int runLength, int currPageOffset){
 
-    Page *temp = new (nothrow) Page();
-    assert(temp!=NULL);
+
     // read some number of records into a ?vector? and call sort method with stl comparator
     vector <Record *> recordArray;
     int hasNext=0;
@@ -162,16 +161,15 @@ int BigQ::WriteRun(OrderMaker &sortorder,Pipe &in, int runLength, int currPageOf
         }
         rec=new Record;
     }
-    cout<<"No of records removed from pipe   :"<<iterRec<<endl;
+    //cout<<"No of records removed from pipe   :"<<iterRec<<endl;
     if (recordArray.size()==0)
         return 0;
 
     sort(recordArray.begin(),recordArray.end(),CompareTheRecords(&sortorder));
 
-
     // sorting the records we have
 #ifdef verbose
-    cout<<"Array size is  :"<<recordArray.size()<<endl;
+    //cout<<"Array size is  :"<<recordArray.size()<<endl;
 #endif
     vector<Record *>::iterator it;
     //Record& recRef=recordArray.begin();
@@ -189,10 +187,10 @@ int BigQ::WriteRun(OrderMaker &sortorder,Pipe &in, int runLength, int currPageOf
             writePage=true;
             sortedWrite.AddPage(p,i+currPageOffset);
 #ifdef verbose
-            cout<<"Page written at:   "<<(currPageOffset+i)<<endl;
+           // cout<<"Page written at:   "<<(currPageOffset+i)<<endl;
 #endif
             i++;
-            p=new Page();
+            p->EmptyItOut();
             assert(p!=NULL);
             p->Append(*it);
         }
@@ -200,13 +198,14 @@ int BigQ::WriteRun(OrderMaker &sortorder,Pipe &in, int runLength, int currPageOf
     }
     sortedWrite.AddPage(p,i+currPageOffset);
 #ifdef verbose
-    cout<<"Records written is :"<<recordsWritten<<endl;
-    cout<<"Page written at:   "<<(currPageOffset+i)<<endl;
+    //cout<<"Records written is :"<<recordsWritten<<endl;
+    //cout<<"Page written at:   "<<(currPageOffset+i)<<endl;
 #endif
     if (i==0){
-        cout<<"No of pages written:   "<<i+1<<endl;
+        //cout<<"No of pages written:   "<<i+1<<endl;
     }
-    else cout<<"No of pages written:   "<<i<<endl;
+    recordArray.clear();
+    //else cout<<"No of pages written:   "<<i<<endl;
     return i+1;
 }
 
