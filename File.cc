@@ -1,12 +1,12 @@
 #include "File.h"
 #include "TwoWayList.cc"
 
+#include<stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
 #include <iostream>
-#include <stdlib.h>
 
 
 
@@ -109,6 +109,7 @@ void Page :: FromBinary (char *bits) {
 
 	// first read the number of records on the page
 	numRecs = ((int *) bits)[0];
+	//subi //cerr << " numRecs in page " << numRecs << endl;
 
 	// sanity check
 	if (numRecs > 1000000 || numRecs < 0) {
@@ -166,6 +167,7 @@ void File :: GetPage (Page *putItHere, off_t whichPage) {
 
 	// this is because the first page has no data
 	whichPage++;
+	//subi// cerr << "get_pg " << whichPage << " file_sz " << curLength << endl;
 
 	if (whichPage >= curLength) {
 		cerr << "whichPage " << whichPage << " length " << curLength << endl;

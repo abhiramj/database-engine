@@ -50,6 +50,7 @@ class OrderMaker {
 
 public:
 	
+
 	// creates an empty OrdermMaker
 	OrderMaker();
 

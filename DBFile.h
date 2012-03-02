@@ -1,6 +1,6 @@
 #ifndef DBFILE_H
 #define DBFILE_H
-
+#include "GenericDBFile.h"
 #include "TwoWayList.h"
 #include "Record.h"
 #include "Schema.h"
@@ -8,11 +8,12 @@
 #include "Comparison.h"
 #include "ComparisonEngine.h"
 
-typedef enum {heap, sorted, tree} fType;
+typedef enum {heap, sorted, tree, invalid} fType;
 enum {DB_INSUFFICIENT_MEMORY=0,DB_UNSUPPORTED_TYPE=2,DB_CREATE_SUCCESS=1} ; 
 
 class DBFile {
-    private: 
+    private:
+        GenericDBFile* myInternalVar; 
         File *fileP;
         Page *pageP;
         int header;
@@ -35,7 +36,8 @@ public:
 	void Add (Record &addme);
 	int GetNext (Record &fetchme);
 	int GetNext (Record &fetchme, CNF &cnf, Record &literal);
-        int MakeDbHeader(char*);
+        int MakeDbHeader(char*,fType);
+        fType readHeader(char*);
 
 };
 #endif

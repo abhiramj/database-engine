@@ -19,9 +19,15 @@ class BigQ {
     public:
 
         BigQ (Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen);
-        int WriteRun(OrderMaker &sortorder,Pipe &in, int runLength,int offsetToWrite);
+        int  ExternalSort();
+        int WriteRun(int offsetToWrite);
         ~BigQ ();
+        Pipe* inputPipe;
+        Pipe* outputPipe;
+        OrderMaker* SortOrder;
+        int lengthOfRun;
     private:
+        //void* RunThread(void *);
         File sortedWrite;
         vector<int > runStart;
         vector<int > runLengths;

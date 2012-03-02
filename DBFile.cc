@@ -10,6 +10,7 @@
 #include <string>
 #include <assert.h>
 #include <iostream>
+#include <fstream>
 using namespace std;
 // stub file .. replace it with your own DBFile.cc
 
@@ -28,7 +29,7 @@ DBFile::DBFile () {
 int DBFile::Create (char *f_path, fType f_type, void *startup) {
     // Not implemented sorted or tree
 
-    if (f_type==sorted || f_type == tree)
+    if (f_type == tree)
         return 0;
     fileP=new (nothrow) File();
     pageP=new (nothrow) Page();
@@ -45,14 +46,17 @@ int DBFile::Create (char *f_path, fType f_type, void *startup) {
     //store path
     strcpy(path,f_path);
     //create header to store attrib
-    header=MakeDbHeader(path);
+    header=MakeDbHeader(path,f_type);
     if (header==0)
         return DB_INSUFFICIENT_MEMORY;
     //
     //This is for putting stuff in header
     //
-    /*int *headerPtr=&header;
-      write(header,headerPtr,sizeof(header));
+    //int *headerPtr=&header;
+    /*if(f_type==sorted)
+      write(header,"sorted",7);
+      else if (f_type==heap)
+      write(header,"heap",5);
       close(header);
       */
     return DB_CREATE_SUCCESS;
@@ -133,11 +137,17 @@ int DBFile::Open (char *f_path) {
     if (pageP==NULL )
         return 0;
     strcpy(path,f_path);
-    header=MakeDbHeader(path);
-    /*int *fileDes;
+    /*header=MakeDbHeader(path);
+      int *fileDes;
       if (read(header,fileDes,4)>0){
       header=(*fileDes);
       }*/
+    fType file_type=readHeader(path);
+    if (file_type==sorted)
+       myInternalVar= new Sorted(); 
+    else if (file_type==heap)
+        myInternalVar= new Heap();
+    else return DB_UNSUPPORTED_TYPE;
     fileP=new (nothrow) File();
     assert(path!=NULL && fileP!= NULL);
     fileP->Open(5,path);
@@ -146,7 +156,7 @@ int DBFile::Open (char *f_path) {
     //cout<<"End page offset:    "<<endPageOffset<<endl;
     if (endPageOffset!=-1)
         fileP->GetPage(pageP,0);
-    assert(length>0 && length <10000);
+    assert(length>0);
     printf("No of pages:  %ld\n ",fileP->GetLength());
     pageOffset=0;
     recOffset=0;
@@ -184,7 +194,7 @@ int DBFile::Close () {
         fileP->AddPage(pageP,endPageOffset);
     }
     fileP->Close();
-    close(header);
+    //close(header);
     delete fileP;
     if (path!=NULL)
         delete [] path;
@@ -199,7 +209,7 @@ int DBFile::Close () {
 }
 
 void DBFile::Add (Record &rec) {
-    
+
     assert(fileP!=NULL);
     bool writeFirst=false;
     int lastPage=endPageOffset;
@@ -207,7 +217,7 @@ void DBFile::Add (Record &rec) {
     //    pageP=new Page();
     //else fileP->GetPage(pageP,lastPage);
     // Potential error
-   // cout<<" Last page offset "<<lastPage<<endl;
+    // cout<<" Last page offset "<<lastPage<<endl;
     //if (fileP->GetLength()!=0)
     do {
         if (writeFirst){
@@ -301,8 +311,54 @@ int DBFile::GetNext (Record &fetchme, CNF &cnf, Record &literal) {
 
 
 }
+//Deprecated - uses file descriptors
 
-int DBFile::MakeDbHeader(char* bin_path){
+/*
+   int DBFile::MakeDbHeader(char* bin_path){
+   string oldString(bin_path);
+   size_t lastpos=oldString.find_last_of('.');
+#ifdef verbose
+cout<<oldString<<endl;
+cout<<oldString.substr(lastpos+1)<<endl;
+cout<<"Compare to bin is"<<oldString.compare((lastpos+1),oldString.length(),"bin")<<endl;
+#endif
+string newString=oldString.replace((lastpos+1),oldString.length(),"header");
+cout<<newString<<endl;
+
+int newFile=open(newString.c_str(), O_RDWR | O_CREAT,S_IRUSR | S_IWUSR);
+assert(newFile!=0);
+return newFile;
+}
+*/
+int DBFile::MakeDbHeader(char* bin_path,fType f_type){
+    string oldString(bin_path);
+    size_t lastpos=oldString.find_first_of('.');
+#ifdef verbose
+    cout<<oldString<<endl;
+    cout<<oldString.substr(lastpos+1)<<endl;
+    cout<<"Compare to bin is"<<oldString.compare((lastpos+1),oldString.length(),"bin")<<endl;
+#endif
+    string headerStr=oldString.replace((lastpos+1),oldString.length(),"header");
+    ofstream headerFile;
+    headerFile.open(headerStr.c_str());
+    if (headerFile.is_open()){
+        cout<<"Header created at :"<<headerStr<<endl;
+        if (f_type==sorted)
+            headerFile<<"sorted"<<endl;
+        else if (f_type==heap)
+            headerFile<<"heap"<<endl;
+        headerFile.close();
+        return 1;
+    }
+    else {
+        cout<<"Unable to create file at :"<<headerStr<<endl;
+        return 0;
+    }
+
+
+}
+
+fType DBFile::readHeader(char* bin_path){
     string oldString(bin_path);
     size_t lastpos=oldString.find_last_of('.');
 #ifdef verbose
@@ -310,11 +366,21 @@ int DBFile::MakeDbHeader(char* bin_path){
     cout<<oldString.substr(lastpos+1)<<endl;
     cout<<"Compare to bin is"<<oldString.compare((lastpos+1),oldString.length(),"bin")<<endl;
 #endif
-    string newString=oldString.replace((lastpos+1),oldString.length(),"header");
-    cout<<newString<<endl;
-
-    int newFile=open(newString.c_str(), O_RDWR | O_CREAT,S_IRUSR | S_IWUSR);
-    assert(newFile!=0);
-    return newFile;
+    string headerStr=oldString.replace((lastpos+1),oldString.length(),"header");
+    ifstream headerFile;
+    headerFile.open(headerStr.c_str());
+    string isFileType;
+    if (headerFile.is_open())
+    {
+        if ( headerFile.good() )
+        {
+            getline (headerFile,isFileType);
+        }
+        headerFile.close();
+    }
+    if (isFileType.compare("sorted"))
+        return sorted;
+    else if (isFileType.compare("heap"))
+        return heap;
+    else return invalid;
 }
-
