@@ -2,9 +2,9 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
-
+#include <fstream>
 #include "Comparison.h"
-
+using namespace std;
 
 Comparison::Comparison()
 {
@@ -117,6 +117,27 @@ void OrderMaker :: Print () {
 	}
 }
 
+void OrderMaker :: PrintToFile (ofstream &printFile) {
+	//printf("NumAtts = %5d\n", numAtts);
+        printFile<<numAtts<<endl;
+	for (int i = 0; i < numAtts; i++)
+	{
+		//printf("%3d: %5d ", i, whichAtts[i]);
+                printFile<<whichAtts[i]<<endl;
+		if (whichTypes[i] == Int){
+			//printf("Int\n");
+                        printFile<<"Int"<<endl;
+                }
+		else if (whichTypes[i] == Double){
+			//printf("Double\n");
+                        printFile<<"Double"<<endl;
+                }
+		else{
+			//printf("String\n");
+                        printFile<<"String"<<endl;
+                }
+	}
+}
 
 int CNF :: GetSortOrders (OrderMaker &left, OrderMaker &right) {
 
@@ -142,7 +163,7 @@ int CNF :: GetSortOrders (OrderMaker &left, OrderMaker &right) {
 		// now verify that it operates over atts from both tables
 		if (!((orList[i][0].operand1 == Left && orList[i][0].operand2 == Right) ||
 		      (orList[i][0].operand2 == Left && orList[i][0].operand1 == Right))) {
-			//continue;		
+		//	continue;		
 		}
 
 		// since we are here, we have found a join attribute!!!

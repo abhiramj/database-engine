@@ -6,8 +6,8 @@
 #include "File.h"
 #include "Comparison.h"
 #include "ComparisonEngine.h"
-
-
+#include <fstream>
+using namespace std;
 // This stores an individual comparison that is part of a CNF
 class Comparison {
 
@@ -43,13 +43,13 @@ class OrderMaker {
 	friend class ComparisonEngine;
 	friend class CNF;
 
+
+public:
+	
 	int numAtts;
 
 	int whichAtts[MAX_ANDS];
 	Type whichTypes[MAX_ANDS];
-
-public:
-	
 
 	// creates an empty OrdermMaker
 	OrderMaker();
@@ -60,6 +60,14 @@ public:
 
 	// print to the screen
 	void Print ();
+        //print to file
+        void PrintToFile (ofstream &printFile) ;
+
+};
+
+struct SortInfo{
+    OrderMaker *myOrder;
+    int runLength;
 };
 
 class Record;

@@ -1,5 +1,5 @@
 
-CC = g++ -O1 -Wno-deprecated -fpermissive
+CC = g++ -O2 -Wno-deprecated
 
 tag = -i
 
@@ -7,8 +7,8 @@ ifdef linux
 tag = -n
 endif
 
-a3.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o DBFile.o Pipe.o BigQ.o RelOp.o Function.o y.tab.o yyfunc.tab.o lex.yy.o lex.yyfunc.o test.o
-	$(CC) -o a3.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o DBFile.o Pipe.o BigQ.o RelOp.o Function.o y.tab.o yyfunc.tab.o lex.yy.o lex.yyfunc.o test.o -lfl -lpthread
+test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o DBFile.o Pipe.o BigQ.o RelOp.o Function.o y.tab.o yyfunc.tab.o lex.yy.o lex.yyfunc.o test.o
+	$(CC) -o test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o DBFile.o Pipe.o BigQ.o RelOp.o Function.o y.tab.o yyfunc.tab.o lex.yy.o lex.yyfunc.o test.o -lfl -lpthread
 	
 a2-2test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o a2-2test.o
 	$(CC) -o a2-2test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o a2-2test.o -lfl -lpthread

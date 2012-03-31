@@ -183,7 +183,6 @@ int BigQ::ExternalSort() {
     bool isNextRunEmpty=false;
     do {
         // popping the 1st elem, finding out where it came from
-        assert(!recQ.empty());
         int runIndex=recQ.top()->runNum;
         outputPipe->Insert(recQ.top()->recStruct);
         recQ.pop();

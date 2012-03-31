@@ -27,7 +27,6 @@ class BigQ {
         int lengthOfRun;
     private:
         //void* RunThread(void *);
-	int noRuns;
         File sortedWrite;
         vector<int > runStart;
         vector<int > runLengths;
