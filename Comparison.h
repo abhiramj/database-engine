@@ -85,6 +85,7 @@ class CNF {
 	int numAnds;
 
 public:
+        OrderMaker* MakeQOrderMaker(OrderMaker &);
 
 	// this returns an instance of the OrderMaker class that
 	// allows the CNF to be implemented using a sort-based

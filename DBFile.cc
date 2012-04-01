@@ -6,6 +6,7 @@
 #include "ComparisonEngine.h"
 #include "DBFile.h"
 #include "Defs.h"
+#include <stdlib.h>
 #include <string.h>
 #include <string>
 #include <assert.h>
@@ -48,15 +49,22 @@ int DBFile::Open (char *f_path) {
     SortInfo* newSort= new SortInfo;
     newSort->myOrder= new OrderMaker();
     fType file_type=readHeader(f_path,newSort);
-    cout<<"Opened file type :"<<file_type<<endl;
+    cout<<"Opened file type :  ";
     if (file_type==sorted){
+        cout<<"Sorted"<<endl;
        myInternalVar= new Sorted();
 	myInternalVar->setSort(newSort);
         newSort->myOrder->Print();
         }
-    else if (file_type==heap)
+    else if (file_type==heap){
+        cout<<"Heap"<<endl;
         myInternalVar= new Heap();
-    else return DB_UNSUPPORTED_TYPE;
+    }
+    else {
+        cout<<"Cannot open invalid file. Check header file exits at path: "<<f_path<<endl;
+        //exit(-1);
+        return DB_UNSUPPORTED_TYPE;
+    }
         return myInternalVar->Open(f_path);
 }
 
@@ -134,6 +142,7 @@ fType DBFile::readHeader(char* bin_path, SortInfo *getInfo){
         if ( headerFile.good() )
         {
             getline (headerFile,isFileType);
+            //cout<<isFileType<<endl;
         }
     }
     if ((isFileType.compare("sorted"))==0){

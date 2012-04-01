@@ -84,20 +84,130 @@ void Sorted::Add(Record &rec){
    input->Insert(&rec);
 }
 int Sorted::GetNext(Record& fetchme, CNF& cnf, Record& literal){
+
+
+    // If QueryMaker is not calculated, make it
+    if (!isCalcQMaker){
+        OrderMaker *sortedOn = fileOrder->myOrder;
+
+        //Printing ordermaker on which file was sorted on
+
+        //cout<<"The order maker sorted on is:  "<<endl;
+        //sortedOn->Print();
+
+        //Printing CNF inputted
+        //cout<<"The input CNF is:  "<<endl;
+        //cnf.Print();
+
+        // Make the ordermaker
+        qMaker=cnf.MakeQOrderMaker((*sortedOn));
+        isCalcQMaker=true;
+        //assert(qMaker!=NULL);
+    }
+
+    //Two cases , either the file is in readmode or on writemode. If in write mode, merge it.
+    //If in read mode, either we have a current page in mem or not.
+
+    //search the file for the sorted record, we need a pointer to the record.../page .. this we can get 
+    //from the pageOffset/tempPage combo if previous GetNext loaded a page in memory
+    //
+    //Else we start from middle
+    //
+
+
     ComparisonEngine matcher;
+    if (qMaker==NULL){
+
     while (GetNext(fetchme)!=0){
         if(matcher.Compare(&fetchme,&literal,&cnf)==0)
             continue;
         return 1;
     }
+    }
+    else {
+        if (isWrite){
+        Merge();
+        }
+        isWrite=false;
+        int startSearchPageIndex;;
+        if (tempPage!=NULL){
+            cout<<"TempPage Present, searching here"<<endl;
+            startSearchPageIndex=pageOffset;
+            //Record *getRec;
+            //assert(fetchme!=NULL);
+            while (tempPage->GetFirst(&fetchme)){
+                if (matcher.Compare(&literal,qMaker,&fetchme,fileOrder->myOrder) == 0){
+            if (matcher.Compare(&fetchme,&literal,&cnf)==0)
+                continue;
+            else return 1;
 
-    // If QueryMaker is not calculated, make it
-    /*if (!isCalcQMaker){
-    
-    }*/
+                    }
+            }
+            // If we got here the page we were looking at (the temp page in memory) doesnt have the record
+            //Start binary searching from next page .. 
+            startSearchPageIndex++;
+
+        }else {
+            cout<<"No temp page , searching from the middle"<<endl;
+        startSearchPageIndex=0;
+        }
+        tempPage= new Page();
+            // Or no page was in memory
+            //Moving on and doing binary search
+        int res=BinarySearch(fetchme,cnf,literal,startSearchPageIndex,endPageOffset-1);
+        if (res==1)
+            return 1;
+    }
+
     return 0;
 
 }
+//Standard Binary search. Also update tempPage and pageOffset in this 
+int Sorted::BinarySearch(Record& fetchme,CNF& cnf,Record& literal, int startIndex, int endIndex){
+    if (startIndex>endIndex){
+        cout<<"Got start index > endindex, exiting"<<endl;
+        // This should be irrelevant
+        tempPage->EmptyItOut();
+        tempPage=NULL;
+        //Should
+        pageOffset=0;
+        return 0;
+    }
+    int middleIndex=(startIndex+endIndex)/2;
+    fileP->GetPage(tempPage,middleIndex);
+    
+    //Get the first record, if lesser make the binary search on lesser side, else search page,make search on greater side.
+    //Record tempRec;
+    //atleast one rec is present in the page!
+    tempPage->GetFirst(&fetchme);
+    ComparisonEngine cEng;
+    if (cEng.Compare(&literal,qMaker,&fetchme,fileOrder->myOrder)<0){
+        //fetchme.Print();
+        cout<<"Lesser    :"<<"StartIndex is :"<<startIndex<<"....EndIndex is :"<<endIndex<<endl;
+        return BinarySearch(fetchme,cnf,literal,startIndex,middleIndex-1);
+    }
+    else {
+        do{
+                //cout <<cEng.Compare(&literal,qMaker,&fetchme,fileOrder->myOrder)<<endl;
+                if (cEng.Compare(&literal,qMaker,&fetchme,fileOrder->myOrder) == 0){
+            if (cEng.Compare(&fetchme,&literal,&cnf)==0)
+                continue;
+            else {
+                //updating currOffset
+                pageOffset=middleIndex;
+                return 1;
+            }
+                    }
+                //else fetchme.Print();
+            }while (tempPage->GetFirst(&fetchme));
+            startIndex=middleIndex+1;
+            cout<<"Greater    :"<<"StartIndex is :"<<startIndex<<"....EndIndex is :"<<endIndex<<endl;
+            return BinarySearch(fetchme,cnf,literal,startIndex,endIndex);
+    }
+
+
+}
+
 int Sorted::Open(char* f_path){
     cout<<"Opening file from path   :"<<f_path<<endl;
     path= new (nothrow) char[strlen(f_path)+1];

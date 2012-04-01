@@ -72,6 +72,7 @@ class Sorted:public GenericDBFile{
         Pipe* output;
         bool isCalcQMaker;
         int Merge();
+        OrderMaker *qMaker;
 
     public:
         Sorted();
@@ -85,6 +86,7 @@ class Sorted:public GenericDBFile{
         void MoveFirst ();
         int GetNext (Record &);
 	void setSort(SortInfo *);
+        int BinarySearch(Record& fetchme,CNF& cnf,Record& literal, int startIndex, int endIndex);
 
 };
 

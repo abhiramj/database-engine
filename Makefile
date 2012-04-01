@@ -10,14 +10,15 @@ endif
 a3.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o DBFile.o Pipe.o BigQ.o RelOp.o Function.o y.tab.o yyfunc.tab.o lex.yy.o lex.yyfunc.o test.o
 	$(CC) -o a3.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o DBFile.o Pipe.o BigQ.o RelOp.o Function.o y.tab.o yyfunc.tab.o lex.yy.o lex.yyfunc.o test.o -lfl -lpthread
 	
-a2-2test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o a2-2test.o
-	$(CC) -o a2-2test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o a2-2test.o -lfl -lpthread
+a2-2test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o BigQ.o DBFile.o Pipe.o Function.o y.tab.o yyfunc.tab.o lex.yy.o lex.yyfunc.o a2-2test.o
+	$(CC) -o a2-2test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o BigQ.o DBFile.o Pipe.o Function.o y.tab.o yyfunc.tab.o lex.yy.o lex.yyfunc.o a2-2test.o -lfl -lpthread
 	
-a2test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o a2-test.o
-	$(CC) -o a2test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o a2-test.o -lfl -lpthread
+a2test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o BigQ.o DBFile.o Function.o Pipe.o y.tab.o yyfunc.tab.o lex.yyfunc.o lex.yy.o a2-test.o
+	$(CC) -o a2test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o BigQ.o DBFile.o Pipe.o Function.o y.tab.o yyfunc.tab.o lex.yyfunc.o lex.yy.o a2-test.o -lfl -lpthread
 	
-a1test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o File.o Sorted.o Heap.o DBFile.o Pipe.o y.tab.o lex.yy.o a1-test.o
-	$(CC) -o a1test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o DBFile.o Pipe.o y.tab.o lex.yy.o a1-test.o -lfl
+a1test.out: Record.o Comparison.o ComparisonEngine.o Schema.o File.o File.o Sorted.o Heap.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o a1-test.o
+	$(CC) -o a1test.out Record.o Comparison.o ComparisonEngine.o Schema.o File.o Sorted.o Heap.o BigQ.o DBFile.o Pipe.o y.tab.o lex.yy.o a1-test.o -lfl -lpthread
+
 	
 test.o: test.cc
 	$(CC) -g -c test.cc
